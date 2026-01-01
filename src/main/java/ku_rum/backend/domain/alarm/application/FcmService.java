@@ -36,6 +36,18 @@ public class FcmService {
     private final UserQueryService userQueryService;
     private final UserService userService;
 
+    public void sendToUsersIfTokenExists(FcmDirectDto fcmDirectDto) {
+        User user = userService.getUser();
+        Optional<UserFcmToken> token = userFcmTokenRepository.findByUser(user);
+
+        if (token.isEmpty()) {
+            log.info("FCM token not found. skip send. userId={}", user.getId());
+            return;
+        }
+
+        sendToUsers(fcmDirectDto);
+    }
+
     public void sendToUsers(FcmDirectDto request) {
         List<User> users = userQueryService.getUsersByIds(request.userIds());
 
